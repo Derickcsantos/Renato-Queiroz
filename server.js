@@ -4,7 +4,8 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-const validator = require('validator');
+import validator from 'validator'; // Correto para ES Modules
+
 
 dotenv.config();
 
