@@ -3,9 +3,10 @@ import nodemailer from 'nodemailer';
 import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
+const PDFDocument = require('pdfkit');
 import dotenv from 'dotenv';
-import validator from 'validator'; // Correto para ES Modules
-
+// import validator from 'validator'; // Correto para ES Modules
+const fs = require('fs');
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.get('/simular', (req, res) => {
 });
 
 // Rota para envio do formulário
+// Rota para envio do formulário
 app.post('/enviar-formulario', async (req, res) => {
   const {
     nome = 'Não informado',
@@ -57,6 +59,35 @@ app.post('/enviar-formulario', async (req, res) => {
   } = req.body;
 
   try {
+    // Gerar o PDF
+    const doc = new PDFDocument();
+    const filePath = path.join(__dirname, 'formulario.pdf');
+    
+    doc.pipe(fs.createWriteStream(filePath));
+
+    // Adicionar conteúdo ao PDF
+    doc.fontSize(16).text(`Formulário preenchido por: ${nome}`, { align: 'center' });
+    doc.fontSize(12).moveDown();
+    doc.text(`Nome: ${nome}`);
+    doc.text(`CPF: ${cpf}`);
+    doc.text(`Data de nascimento: ${nascimento}`);
+    doc.text(`Estado Civil: ${estadoCivil}`);
+    doc.text(`Nome do cônjuge: ${nomeConjuge}`);
+    doc.text(`Email: ${email}`);
+    doc.text(`Telefone: ${telefone}`);
+    doc.text(`RG: ${rg}`);
+    doc.text(`Data de emissão: ${dataEmissao}`);
+    doc.text(`Cidade Natal: ${cidadeNatal}`);
+    doc.text(`Nome da Mãe: ${nomeMae}`);
+    doc.text(`Profissão: ${profissao}`);
+    doc.text(`Renda Bruta: ${rendaBruta}`);
+    doc.text(`Endereço: ${endereco}`);
+    doc.text(`CEP: ${cep}`);
+    doc.text(`Forma de pagamento: ${formaPagamento}`);
+
+    doc.end();
+
+    // Configurar o transporte de e-mail
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -65,48 +96,35 @@ app.post('/enviar-formulario', async (req, res) => {
       }
     });
 
-    // Corpo do e-mail
-    const mailContent = `
-      <h3>Formulário preenchido por ${nome}</h3>
-      <p><strong>Nome:</strong> ${nome}</p>
-      <p><strong>CPF:</strong> ${cpf}</p>
-      <p><strong>Data de nascimento:</strong> ${nascimento}</p>
-      <p><strong>Estado Civil:</strong> ${estadoCivil}</p>
-      <p><strong>Nome do cônjuge:</strong> ${nomeConjuge}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Telefone:</strong> ${telefone}</p>
-      <p><strong>RG:</strong> ${rg}</p>
-      <p><strong>Data de emissão:</strong> ${dataEmissao}</p>
-      <p><strong>Cidade Natal:</strong> ${cidadeNatal}</p>
-      <p><strong>Nome da Mãe:</strong> ${nomeMae}</p>
-      <p><strong>Profissão:</strong> ${profissao}</p>
-      <p><strong>Renda Bruta:</strong> R$ ${rendaBruta}</p>
-      <p><strong>Endereço:</strong> ${endereco}</p>
-      <p><strong>CEP:</strong> ${cep}</p>
-      <p><strong>Forma de pagamento:</strong> ${formaPagamento}</p>
-    `;
-
-    // Enviar e-mail
-    await transporter.sendMail({
+    // Enviar o e-mail com o PDF em anexo
+    const mailOptions = {
       from: email,
       to: 'derickcampossantos1@gmail.com',
       subject: 'Formulário preenchido pelo cliente',
-      html: mailContent
-    });
+      text: 'O formulário foi preenchido e está anexado como PDF.',
+      attachments: [
+        {
+          filename: 'formulario.pdf',
+          path: filePath
+        }
+      ]
+    };
 
+    await transporter.sendMail(mailOptions);
+
+    // Enviar resposta ao cliente
     res.send(`
       <script>
-        alert("Formulário preenchido com sucesso!");
+        alert("Formulário preenchido com sucesso! O PDF foi enviado.");
         window.location.href = "/";
       </script>
     `);
 
   } catch (error) {
-    console.error('Erro ao enviar email:', error);
+    console.error('Erro ao enviar o formulário ou gerar o PDF:', error);
     res.status(500).send('Erro ao enviar o formulário. Tente novamente mais tarde.');
   }
 });
-
 
 // Rota para envio de email
 app.post('/enviar-email', async (req, res) => {

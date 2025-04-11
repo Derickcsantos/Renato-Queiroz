@@ -12,9 +12,9 @@ body {
     color: #333;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     height: 100vh;
-    padding-top: 20px; /* Espaçamento do topo da página */
+    padding-top: 40px; /* Espaçamento superior */
 }
 
 /* Container do formulário */
@@ -25,7 +25,7 @@ form {
     width: 100%;
     max-width: 500px;
     margin: 0 20px;
-    margin-top: 20px; /* Espaçamento entre o topo da tela e o formulário */
+    padding: 20px;
 }
 
 /* Títulos e Labels */
