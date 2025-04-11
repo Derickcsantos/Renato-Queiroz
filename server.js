@@ -37,26 +37,37 @@ app.get('/simular', (req, res) => {
 
 // Rota para envio do formulário
 app.post('/enviar-formulario', async (req, res) => {
-  const {
+  let {
     nome, cpf, nascimento, estadoCivil, nomeConjuge, email, telefone, rg, 
     dataEmissao, cidadeNatal, nomeMae, profissao, rendaBruta, endereco, 
     cep, formaPagamento
   } = req.body;
 
-  // Verificação de campos obrigatórios
-  if (!nome || !cpf || !nascimento || !estadoCivil || !email || !telefone || !rg || 
-      !dataEmissao || !cidadeNatal || !nomeMae || !profissao || !rendaBruta || 
-      !endereco || !cep || !formaPagamento) {
-    return res.status(400).send('Preencha todos os campos obrigatórios.');
-  }
+  // Substituir valores ausentes por "Não informado" ou valores padrão
+  nome = nome || 'Não informado';
+  cpf = cpf || 'Não informado';
+  nascimento = nascimento || 'Não informado';
+  estadoCivil = estadoCivil || 'Não informado';
+  nomeConjuge = nomeConjuge || 'Não informado';
+  email = email || 'Não informado';
+  telefone = telefone || 'Não informado';
+  rg = rg || 'Não informado';
+  dataEmissao = dataEmissao || 'Não informado';
+  cidadeNatal = cidadeNatal || 'Não informado';
+  nomeMae = nomeMae || 'Não informado';
+  profissao = profissao || 'Não informado';
+  rendaBruta = rendaBruta || 'Não informado';
+  endereco = endereco || 'Não informado';
+  cep = cep || 'Não informado';
+  formaPagamento = formaPagamento || 'Não informado';
 
   // Validação de e-mail
-  if (!validator.isEmail(email)) {
+  if (email !== 'Não informado' && !validator.isEmail(email)) {
     return res.status(400).send('Email inválido.');
   }
 
   // Validação de CPF (usando expressão regular simples para validação, por exemplo)
-  if (!validator.isLength(cpf, { min: 11, max: 11 }) || !/^\d+$/.test(cpf)) {
+  if (cpf !== 'Não informado' && (!validator.isLength(cpf, { min: 11, max: 11 }) || !/^\d+$/.test(cpf))) {
     return res.status(400).send('CPF inválido.');
   }
 
@@ -76,7 +87,7 @@ app.post('/enviar-formulario', async (req, res) => {
       <p><strong>CPF:</strong> ${cpf}</p>
       <p><strong>Data de nascimento:</strong> ${nascimento}</p>
       <p><strong>Estado Civil:</strong> ${estadoCivil}</p>
-      <p><strong>Nome do cônjuge:</strong> ${nomeConjuge || 'Não informado'}</p>
+      <p><strong>Nome do cônjuge:</strong> ${nomeConjuge}</p>
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Telefone:</strong> ${telefone}</p>
       <p><strong>RG:</strong> ${rg}</p>
@@ -110,6 +121,7 @@ app.post('/enviar-formulario', async (req, res) => {
     res.status(500).send('Erro ao enviar o formulário. Tente novamente mais tarde.');
   }
 });
+
 
 // Rota para envio de email
 app.post('/enviar-email', async (req, res) => {
