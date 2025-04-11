@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulador de Consórcio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #0078d4;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #resultado {
+      margin-top: 30px;
+      background: #e8f0fe;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Simulador de Consórcio</h2>
+  <label for="tipoConsorcio">Escolha o tipo de consórcio:</label>
+  <select id="tipoConsorcio">
+    <option value="imovel">Imóvel</option>
+    <option value="auto">Automóvel</option>
+  </select>
+
+  <!-- Formulário Imóvel -->
+  <form id="formImovel" class="formulario">
+    <label for="creditoImovel">Valor do crédito desejado (mín. R$ 80.000)</label>
+    <input type="number" id="creditoImovel" min="80000" step="1000" required>
+
+    <label for="parcelasImovel">Quantidade de parcelas (máx. 195)</label>
+    <input type="number" id="parcelasImovel" min="60" max="195" required>
+
+    <label for="lanceImovel">Percentual de lance (%)</label>
+    <input type="number" id="lanceImovel" min="0" max="100" step="0.01" required>
+
+    <label for="embutidoImovel">Deseja embutir o lance?</label>
+    <select id="embutidoImovel">
+      <option value="sim">Sim</option>
+      <option value="nao">Não</option>
+    </select>
+
+    <button type="submit">Simular</button>
+  </form>
+
+  <!-- Formulário Automóvel -->
+  <form id="formAuto" class="formulario hidden">
+    <label for="creditoAuto">Crédito Desejado (mín. R$ 25.000, máx. R$ 200.000)</label>
+    <input type="number" id="creditoAuto" min="25000" max="200000" required>
+
+    <label for="parcelasAuto">Quantidade de Parcelas (12 a 120)</label>
+    <input type="number" id="parcelasAuto" min="12" max="120" required>
+
+    <label for="lanceAuto">Percentual de Lance (%)</label>
+    <input type="number" id="lanceAuto" step="0.01" min="0" max="100">
+
+    <label for="embutidoAuto">Deseja usar lance embutido?</label>
+    <select id="embutidoAuto">
+      <option value="sim">Sim</option>
+      <option value="nao" selected>Não</option>
+    </select>
+
+    <button type="submit">Simular</button>
+  </form>
+
+  <div id="resultado"></div>
+  <button id="btnPDF" class="hidden">Baixar Orçamento em PDF</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  const tipoConsorcio = document.getElementById('tipoConsorcio');
+  const formImovel = document.getElementById('formImovel');
+  const formAuto = document.getElementById('formAuto');
+  const resultado = document.getElementById('resultado');
+  const btnPDF = document.getElementById('btnPDF');
+
+  tipoConsorcio.addEventListener('change', () => {
+    const tipo = tipoConsorcio.value;
+    formImovel.classList.add('hidden');
+    formAuto.classList.add('hidden');
+    resultado.innerHTML = '';
+    btnPDF.classList.add('hidden');
+
+    if (tipo === 'imovel') formImovel.classList.remove('hidden');
+    else formAuto.classList.remove('hidden');
+  });
+
+  formImovel.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const credito = parseFloat(document.getElementById('creditoImovel').value);
+    const parcelas = parseInt(document.getElementById('parcelasImovel').value);
+    const lance = parseFloat(document.getElementById('lanceImovel').value);
+    const embutido = document.getElementById('embutidoImovel').value === 'sim';
+
+    const taxaAdm = 0.19;
+    const fundoReserva = 0.02;
+    const seguro = 0.00031;
+    const parcela = ((credito * (1 + taxaAdm + fundoReserva)) / parcelas).toFixed(2);
+
+    const valorLance = credito * (lance / 100);
+    const maxEmbutido = credito * 0.3;
+    const embutidoUsado = embutido ? Math.min(valorLance, maxEmbutido) : 0;
+    const recursoProprio = valorLance - embutidoUsado;
+    const creditoPos = credito - embutidoUsado;
+    const novaParcela = ((creditoPos * (1 + taxaAdm + fundoReserva)) / (parcelas - 1)).toFixed(2);
+
+    resultado.innerHTML = `
+      <h3>Orçamento Imobiliário</h3>
+      <p><strong>Valor da parcela estimada:</strong> R$ ${parcela}</p>
+      <p><strong>Valor total do lance:</strong> R$ ${valorLance.toFixed(2)}</p>
+      <p><strong>Lance com recurso próprio:</strong> R$ ${recursoProprio.toFixed(2)}</p>
+      <p><strong>Lance embutido:</strong> R$ ${embutidoUsado.toFixed(2)}</p>
+      <p><strong>Crédito líquido pós-contemplação:</strong> R$ ${creditoPos.toFixed(2)}</p>
+      <p><strong>Nova parcela estimada pós-contemplação:</strong> R$ ${novaParcela}</p>
+    `;
+    btnPDF.classList.remove('hidden');
+  });
+
+  formAuto.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const credito = parseFloat(document.getElementById("creditoAuto").value);
+    const parcelas = parseInt(document.getElementById("parcelasAuto").value);
+    const lancePercent = parseFloat(document.getElementById("lanceAuto").value) || 0;
+    const embutido = document.getElementById("embutidoAuto").value === "sim";
+
+    const taxaAdm = 0.18;
+    const fundoReserva = 0.02;
+    const seguro = 0.0042;
+    const taxaTotal = taxaAdm + fundoReserva + seguro;
+
+    const parcela = (credito * (1 + taxaTotal)) / parcelas;
+    const valorLance = credito * (lancePercent / 100);
+    const creditoLiberado = embutido ? credito - valorLance : credito;
+
+    resultado.innerHTML = `
+      <h3>Orçamento Automóvel</h3>
+      <p><strong>Valor da Parcela:</strong> R$ ${parcela.toFixed(2)}</p>
+      <p><strong>Crédito Liberado:</strong> R$ ${creditoLiberado.toFixed(2)}</p>
+      <p><strong>Valor do Lance:</strong> R$ ${valorLance.toFixed(2)} (${lancePercent}%)</p>
+    `;
+    btnPDF.classList.remove('hidden');
+  });
+
+  btnPDF.addEventListener('click', () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(12);
+    doc.text("Orçamento Simulado", 10, 10);
+    const texto = resultado.innerText.split('\n');
+    texto.forEach((linha, i) => doc.text(linha, 10, 20 + (i * 10)));
+    doc.save("orcamento-consorcio.pdf");
+  });
+</script>
+
+</body>
+</html>
