@@ -37,39 +37,24 @@ app.get('/simular', (req, res) => {
 
 // Rota para envio do formulário
 app.post('/enviar-formulario', async (req, res) => {
-  let {
-    nome, cpf, nascimento, estadoCivil, nomeConjuge, email, telefone, rg, 
-    dataEmissao, cidadeNatal, nomeMae, profissao, rendaBruta, endereco, 
-    cep, formaPagamento
+  const {
+    nome = 'Não informado',
+    cpf = 'Não informado',
+    nascimento = 'Não informado',
+    estadoCivil = 'Não informado',
+    nomeConjuge = 'Não informado',
+    email = 'Não informado',
+    telefone = 'Não informado',
+    rg = 'Não informado',
+    dataEmissao = 'Não informado',
+    cidadeNatal = 'Não informado',
+    nomeMae = 'Não informado',
+    profissao = 'Não informado',
+    rendaBruta = 'Não informado',
+    endereco = 'Não informado',
+    cep = 'Não informado',
+    formaPagamento = 'Não informado'
   } = req.body;
-
-  // Substituir valores ausentes por "Não informado" ou valores padrão
-  nome = nome || 'Não informado';
-  cpf = cpf || 'Não informado';
-  nascimento = nascimento || 'Não informado';
-  estadoCivil = estadoCivil || 'Não informado';
-  nomeConjuge = nomeConjuge || 'Não informado';
-  email = email || 'Não informado';
-  telefone = telefone || 'Não informado';
-  rg = rg || 'Não informado';
-  dataEmissao = dataEmissao || 'Não informado';
-  cidadeNatal = cidadeNatal || 'Não informado';
-  nomeMae = nomeMae || 'Não informado';
-  profissao = profissao || 'Não informado';
-  rendaBruta = rendaBruta || 'Não informado';
-  endereco = endereco || 'Não informado';
-  cep = cep || 'Não informado';
-  formaPagamento = formaPagamento || 'Não informado';
-
-  // Validação de e-mail
-  if (email !== 'Não informado' && !validator.isEmail(email)) {
-    return res.status(400).send('Email inválido.');
-  }
-
-  // Validação de CPF (usando expressão regular simples para validação, por exemplo)
-  if (cpf !== 'Não informado' && (!validator.isLength(cpf, { min: 11, max: 11 }) || !/^\d+$/.test(cpf))) {
-    return res.status(400).send('CPF inválido.');
-  }
 
   try {
     const transporter = nodemailer.createTransport({
@@ -80,7 +65,7 @@ app.post('/enviar-formulario', async (req, res) => {
       }
     });
 
-    // Corpo do e-mail melhorado
+    // Corpo do e-mail
     const mailContent = `
       <h3>Formulário preenchido por ${nome}</h3>
       <p><strong>Nome:</strong> ${nome}</p>
@@ -115,7 +100,7 @@ app.post('/enviar-formulario', async (req, res) => {
         window.location.href = "/";
       </script>
     `);
-    
+
   } catch (error) {
     console.error('Erro ao enviar email:', error);
     res.status(500).send('Erro ao enviar o formulário. Tente novamente mais tarde.');
