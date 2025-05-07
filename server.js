@@ -5,8 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import PDFDocument from 'pdfkit';
 import dotenv from 'dotenv';
-// import validator from 'validator'; // Correto para ES Modules
-const fs = require('fs');
+import fs from 'fs';
 
 dotenv.config();
 
