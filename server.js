@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
-const PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 import dotenv from 'dotenv';
 // import validator from 'validator'; // Correto para ES Modules
 const fs = require('fs');
