@@ -4,7 +4,7 @@
 
 🌟 Apresentamos a landing page oficial de **Renato Queiroz**, um profissional experiente nos setores de vendas, imobiliário, automobilístico e consórcios! Um site moderno, acessível e totalmente responsivo, focado em conversão e comunicação eficiente com clientes.
 
-🔗 Acesse o site agora: [renatosilvaqueiroz.vercel.app](https://renatosilvaqueiroz.vercel.app)
+🔗 Acesse o site agora: [renato-queiroz.onrender.com](https://renato-queiroz.onrender.com)
 
 ---
 
